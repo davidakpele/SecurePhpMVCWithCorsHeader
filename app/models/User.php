@@ -96,11 +96,17 @@ class User {
     }
 
     public function get_all(){
-        $this->_connect_db->query(/** @lang text */ 'SELECT a.*, b.* FROM users a INNER JOIN records b ON b.user_id=a.id');
+        $this->_connect_db->query(/** @lang text */ 'SELECT a.id, a.email, b.user_id, b.name, b.mobile, b.dob, b.address, b.cv_path FROM users a INNER JOIN records b ON b.user_id=a.id');
         // Bind the values
         $row = $this->_connect_db->fetch_assoc();
 		if(!empty($row)){
-			return $row;
+            $key = [];
+            foreach ($row as $rows) {
+                // remove user_id because we already have id which have same value as user_id
+                unset($rows['user_id']);
+                $key[] =$rows;
+            }
+			return $key;
 		}else{
 			return false;
 		}

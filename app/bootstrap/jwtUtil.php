@@ -39,7 +39,7 @@ final class jwtUtil  {
             'exp' => time() + 60,  //expire jwt token in 60 seconds
         ];
         $jwt = JWT::encode($payload, $key, 'HS256');
-        return json_encode(['token' => $jwt]);
+        return $jwt;
     }
 
     
