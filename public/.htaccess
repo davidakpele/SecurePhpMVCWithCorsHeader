@@ -1,0 +1,52 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+        Options +MultiViews
+        Options +FollowSymLinks
+    </IfModule>
+  
+    RewriteEngine On
+    
+    RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+    RewriteCond %{QUERY_STRING} base64_encode.*(.*) [OR]
+    RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} GLOBALS(=|[|\%[0-9A-Z]{0,2}) [OR]
+    RewriteCond %{QUERY_STRING} _REQUEST(=|[|\%[0-9A-Z]{0,2})
+    RewriteRule ^(.*)$ index.php [F,L]
+    
+    #Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .+
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%0]
+    #Removing Public From The Url
+    RewriteBase /kyc/public
+
+    #Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+
+    #Remove extensions
+    RewriteCond %{REQUEST_URI} !^/index.php
+    RewriteCond %{REQUEST_URI} (/|.php|.html|.htm|.feed|.pdf|.raw|/[^.]*)$  [NC]
+    RewriteCond $1 !^(app|css|js|jpg|png|gif|jpeg|asset|img|fonts|robots\.txt)
+    RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
+    RewriteCond %{QUERY_STRING}  ^task=view$ [NC]
+    RewriteRule ^(.*)$ $1? [R=301,L]
+
+    #This condition replace and direct you to the that match ur request url. example is instead of http//www/school/admin/About maybe you mistakely type About.php with extension so this redirect you to about about instead of 404 page only is the request match with any method name.
+    #Redirect from extensions to non-extensions
+    RewriteCond %{THE_REQUEST} \s/+(.+?)\.php[\s?] [NC]
+    RewriteRule ^ /%1 [R=301,NE,L]
+
+    # Redirect external .php requests to extensionless url
+    RewriteCond %{THE_REQUEST} \ /+(.+)\.php([#?][^\ ]*)?\ HTTP/
+    RewriteRule ^(.+)\.php$ http://%{HTTP_HOST}/$1 [R=302,L] 
+    
+
+    # Remove index from home URL
+    RewriteCond %{THE_REQUEST} \ /+(.*)index\.php
+    RewriteRule ^(.*)index\.php$ http://%{HTTP_HOST}/$1 [R=301,L]
+    # Remove www from URL
+    RewriteCond %{HTTP_HOST} ^www\.example\.org$ [NC]
+    RewriteRule ^(.*)$ http://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>

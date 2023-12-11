@@ -1,0 +1,4 @@
+Options -Indexes
+
+RewriteEngine On
+RewriteRule ^/?([^=]+)=(.+)$ /?$1=$2 [L,NC,R=302]
